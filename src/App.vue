@@ -1,57 +1,48 @@
 <template>
   <div id="app">
-    <MasterTable :items=posts :selectedItem=selectedItem ref="child"/>
+    <MasterTable :items=posts :selectedItem="selectedItem" @toggleItem="toggleSelectedItem"/>
     <hr class="container">
     <Transition>
-      <DetailForm  v-if="selectedItem != null" v-show="show" :item=this.selectedItem />
+      <DetailForm  v-if="selectedItem != null"  :item=selectedItem :key="selectedItem"/>
     </Transition>
   </div>
 </template>
 
-  
-<script>
+<script setup>
 import MasterTable from './components/MasterTable.vue'
 import DetailForm from './components/DetailForm.vue'
 import axios from "axios";
+import {onMounted, ref} from "vue";
 
-export default {
-  name: 'App',
-    components: {
-    MasterTable,
-    DetailForm
-  },
-  data() {
-    return {
-      posts: [],
-      errors: [],
-      selectedItem: null,
-      show: false
-    };
-  },
-  
-  created() {
-    axios.get(`https://fakestoreapi.com/products/`)
-    .then(response => {
-      this.posts = response.data
-    })
-    .catch(e => {
-      this.errors.push(e)
-    })
-  },    
-  mounted() {
-    this.$watch(
-      "$refs.child.selectedItem",
-      (new_value) => {
-        this.show = false;
-        this.selectedItem = new_value;
-        if(new_value != null )this.show = true;
-      },
-    );
+const posts = ref([])
+const selectedItem = ref(null)
+
+let errors = [];
+const fetchData = () => {
+  axios.get(`https://fakestoreapi.com/products/`)
+      .then(response => {
+        posts.value = response.data
+      })
+      .catch(e => {
+        errors.push(e)
+      });
+}
+function toggleSelectedItem(item) {
+  if(selectedItem.value === item) {
+    selectedItem.value = null;
+  } else {
+    selectedItem.value = item;
   }
 }
+onMounted(() => {
+  fetchData()
+})
+
 </script>
 
 <style>
+@import '@/assets/styles.css';
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -60,7 +51,6 @@ export default {
   color: #2c3e50;
   margin-top: 10px;
 }
-  @import './assets/styles.css';
 
 .v-enter-active,
 .v-leave-active {

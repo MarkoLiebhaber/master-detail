@@ -27,13 +27,12 @@
     </div>
 </template>
 
-<script>
+<script setup>
 
-export default {
-  name: "DetailForm",
-  props: {
-    item: null
-  }
+import {defineProps} from "vue";
 
-};
+defineProps({
+  item: null,
+})
+
 </script>
